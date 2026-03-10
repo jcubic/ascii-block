@@ -249,6 +249,113 @@ def grid_to_string(
     return "\n".join(lines)
 
 
+# ── SVG output ───────────────────────────────────────────────────
+
+_SVG_ESCAPE = str.maketrans({"&": "&amp;", "<": "&lt;", ">": "&gt;"})
+
+
+def _measure_monospace_ch(font_size: float) -> float:
+    """Return the advance width of one character in DejaVu Sans Mono.
+
+    We render a known string with Pillow and measure the exact pixel width
+    so the SVG coordinates match real monospace metrics.
+    """
+    try:
+        font = ImageFont.truetype(
+            "/usr/share/fonts/dejavu-sans-mono-fonts/DejaVuSansMono.ttf",
+            int(font_size),
+        )
+    except OSError:
+        for path in [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+            "/usr/share/fonts/TTF/DejaVuSansMono.ttf",
+        ]:
+            try:
+                font = ImageFont.truetype(path, int(font_size))
+                break
+            except OSError:
+                continue
+        else:
+            # Fallback: typical ratio for monospace at this size
+            return font_size * 0.6
+
+    tmp = Image.new("L", (1, 1))
+    draw = ImageDraw.Draw(tmp)
+    probe = "0" * 50
+    bbox = draw.textbbox((0, 0), probe, font=font)
+    return (bbox[2] - bbox[0]) / len(probe)
+
+
+def grid_to_svg(
+    grid: list[list[bool]],
+    fg: str,
+    bg: str,
+    fcolor: str,
+    bcolor: str,
+    svg_background: str = "#ffffff",
+) -> str:
+    """Convert a boolean grid to a pure-SVG document.
+
+    Uses <text> + <tspan> elements with a monospace font.  Character
+    positions are computed from the measured advance width of DejaVu
+    Sans Mono so the grid aligns perfectly in Inkscape, librsvg, and
+    browsers alike.
+    """
+    rows = len(grid)
+    cols = len(grid[0]) if rows else 0
+
+    font_size = 14  # px
+    cell_w = _measure_monospace_ch(font_size)
+    cell_h = font_size * 1.2  # line height
+
+    svg_w = cols * cell_w
+    svg_h = rows * cell_h
+
+    fg_esc = fg.translate(_SVG_ESCAPE)
+    bg_esc = bg.translate(_SVG_ESCAPE)
+
+    parts: list[str] = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" '
+        f'viewBox="0 0 {svg_w:.2f} {svg_h:.2f}" '
+        f'width="{svg_w:.2f}" height="{svg_h:.2f}">',
+        f'<rect width="100%" height="100%" fill="{svg_background}"/>',
+    ]
+
+    for r, row in enumerate(grid):
+        y = cell_h * r + font_size  # baseline of this row
+        run_fg: bool | None = None
+        run_start_col = 0
+        run_len = 0
+
+        def _flush_run() -> None:
+            nonlocal run_fg, run_start_col, run_len
+            if run_len == 0:
+                return
+            color = fcolor if run_fg else bcolor
+            char = fg_esc if run_fg else bg_esc
+            text = char * run_len
+            x = run_start_col * cell_w
+            span_w = run_len * cell_w
+            parts.append(
+                f'<text x="{x:.2f}" y="{y:.2f}" '
+                f'font-family="monospace" font-size="{font_size}px" '
+                f'textLength="{span_w:.2f}" lengthAdjust="spacing" '
+                f'fill="{color}" xml:space="preserve">{text}</text>'
+            )
+            run_len = 0
+
+        for c, cell in enumerate(row):
+            if cell != run_fg:
+                _flush_run()
+                run_fg = cell
+                run_start_col = c
+            run_len += 1
+        _flush_run()
+
+    parts.append("</svg>")
+    return "\n".join(parts)
+
+
 # ── CLI ──────────────────────────────────────────────────────────
 
 
@@ -266,6 +373,8 @@ examples:
   %(prog)s -f '\\033[42m \\033[0m' -b ' ' HI
   %(prog)s -p 3 CODE
   %(prog)s -x /usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf CODE
+  %(prog)s --format svg -o output.svg CODE
+  %(prog)s --format svg --fcolor '#e00' --bcolor '#ddd' -o art.svg HELLO
 """,
     )
     p.add_argument(
@@ -321,6 +430,33 @@ examples:
         default=None,
         help="path to a TrueType/OpenType font file (default: auto-detect system font)",
     )
+    p.add_argument(
+        "-o",
+        "--output",
+        default=None,
+        help="write output to a file instead of stdout",
+    )
+    p.add_argument(
+        "--format",
+        choices=["text", "svg"],
+        default="text",
+        help="output format: 'text' (default) or 'svg'",
+    )
+    p.add_argument(
+        "--fcolor",
+        default="#000000",
+        help="foreground character colour in SVG as hex code (default: #000000)",
+    )
+    p.add_argument(
+        "--bcolor",
+        default="#cccccc",
+        help="background character colour in SVG as hex code (default: #cccccc)",
+    )
+    p.add_argument(
+        "--svg-background",
+        default="#ffffff",
+        help="SVG background colour as hex code (default: #ffffff)",
+    )
     return p.parse_args(argv)
 
 
@@ -340,7 +476,25 @@ def main(argv: list[str] | None = None) -> None:
         padding=args.padding,
         font_path=args.font,
     )
-    print(grid_to_string(grid, fg, bg))
+
+    if args.format == "svg":
+        output = grid_to_svg(
+            grid,
+            fg,
+            bg,
+            fcolor=args.fcolor,
+            bcolor=args.bcolor,
+            svg_background=args.svg_background,
+        )
+    else:
+        output = grid_to_string(grid, fg, bg)
+
+    if args.output:
+        with open(args.output, "w", encoding="utf-8") as fh:
+            fh.write(output)
+            fh.write("\n")
+    else:
+        print(output)
 
 
 if __name__ == "__main__":
