@@ -1,4 +1,6 @@
-# ASCII-Block
+# [ASCII-Block](https://github.com/jcubic/ascii-block)
+
+![ASCII-Block created from 0 and 1](./logo.svg)
 
 A Python script that renders text as binary art using a real font. The text is
 drawn onto a Pillow canvas, each pixel is sampled, and the result is output as a
