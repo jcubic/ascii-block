@@ -169,22 +169,6 @@ python generate.py --format svg \
 python generate.py -o output.txt CODE
 ```
 
-## How It Works
-
-1. The text is rendered at a large font size onto a Pillow grayscale image.
-2. The image is cropped tightly around the glyph bounding box.
-3. The cropped image is scaled to fit the target grid dimensions using
-   Lanczos resampling.
-4. Each pixel is thresholded (< 128 = foreground, otherwise background) to
-   produce a boolean grid.
-5. The grid is printed as characters (text mode) or converted to SVG `<text>`
-   elements with `textLength` for precise monospace alignment.
-
-Terminal width detection uses the ANSI DSR (Device Status Report) escape
-sequence: the cursor is moved to a very large position, its coordinates are
-queried, and the response reveals the terminal dimensions. This falls back to
-`shutil.get_terminal_size` and then to 80 columns.
-
 ## License
 
 Copyright (C) 2026 [Jakub T. Jankiewicz](https://jakub.jankiewicz.org)<br />
