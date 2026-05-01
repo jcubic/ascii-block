@@ -55,6 +55,7 @@ your own text.
 | | `--fcolor` | `#000000` | Foreground character colour in SVG (hex code). |
 | | `--bcolor` | `#cccccc` | Background character colour in SVG (hex code). |
 | | `--svg-background` | `#ffffff` | SVG rectangle background colour (hex code). |
+| `-v` | `--version` | | Show version number and exit. |
 | | `--help` | | Show help message and exit. |
 
 > **Note:** `-h` is used for `--height`, so help is only available via `--help`.
