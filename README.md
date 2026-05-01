@@ -1,11 +1,8 @@
-# [ASCII-Block](https://github.com/jcubic/ascii-block)
+# [![ASCII-Block created from 0 and 1](https://raw.githubusercontent.com/jcubic/ascii-block/refs/heads/master/logo.svg)](https://github.com/jcubic/ascii-block)
 
-![ASCII-Block created from 0 and 1](https://raw.githubusercontent.com/jcubic/ascii-block/refs/heads/master/logo.svg)
-
-A Python tool that renders text as binary art using a real font. The text is
-drawn onto a Pillow canvas, each pixel is sampled, and the result is output as a
-character grid where one character represents the letters and another fills the
-background.
+ASCII-Block is a Python tool that renders text as binary art using a real font. The text is drawn
+onto a Pillow canvas, each pixel is sampled, and the result is output as a character grid where one
+character represents the letters and another fills the background.
 
 ## Installation
 
