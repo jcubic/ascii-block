@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ascii-block"
+version = "0.1.0"
+description = "Render text as binary art using a real font"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    {name = "Jakub T. Jankiewicz", email = "me@jcubic.pl"},
+]
+keywords = ["ascii-art", "binary-art", "text-rendering", "cli", "svg"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Artistic Software",
+    "Topic :: Text Processing :: General",
+]
+dependencies = [
+    "Pillow>=9.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/jcubic/ascii-block"
+Repository = "https://github.com/jcubic/ascii-block"
+Issues = "https://github.com/jcubic/ascii-block/issues"
+
+[project.scripts]
+block = "ascii_block.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

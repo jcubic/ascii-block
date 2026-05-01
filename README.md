@@ -2,31 +2,43 @@
 
 ![ASCII-Block created from 0 and 1](./logo.svg)
 
-A Python script that renders text as binary art using a real font. The text is
+A Python tool that renders text as binary art using a real font. The text is
 drawn onto a Pillow canvas, each pixel is sampled, and the result is output as a
 character grid where one character represents the letters and another fills the
 background.
 
-## Requirements
-
-- Python 3.10+
-- [Pillow](https://pypi.org/project/Pillow/)
+## Installation
 
 ```bash
-pip install Pillow
+pip install ascii-block
 ```
 
-A TrueType or OpenType font must be available on the system. The script
+Or install from source:
+
+```bash
+git clone https://github.com/jcubic/ascii-block.git
+cd ascii-block
+pip install .
+```
+
+### Requirements
+
+- Python 3.10+
+- [Pillow](https://pypi.org/project/Pillow/) (installed automatically)
+
+A TrueType or OpenType font must be available on the system. The tool
 auto-detects common fonts (DejaVu Sans Bold, FreeSans Bold, Helvetica, Arial)
 or you can specify one explicitly with `--font`.
 
 ## Usage
 
 ```
-python generate.py [options] [TEXT]
+block [options] [TEXT]
 ```
 
-The positional `TEXT` argument defaults to `CODE`.
+When run without arguments, `block` displays a banner with the version,
+an ASCII-BLOCK art preview, and usage instructions. Pass `TEXT` to render
+your own text.
 
 ## Options
 
@@ -65,7 +77,7 @@ backslashes.
 ### Basic usage
 
 ```bash
-python generate.py
+block CODE
 ```
 
 ```
@@ -95,7 +107,7 @@ python generate.py
 ### Custom characters
 
 ```bash
-python generate.py -f '#' -b '.' HELLO
+block -f '#' -b '.' HELLO
 ```
 
 ```
@@ -125,39 +137,39 @@ python generate.py -f '#' -b '.' HELLO
 
 ```bash
 # Red text on grey background
-python generate.py -f '\033[31m0\033[0m' -b '\033[90m1\033[0m'
+block -f '\033[31m0\033[0m' -b '\033[90m1\033[0m'
 
 # Green block letters
-python generate.py -f '\033[42m \033[0m' -b ' ' HELLO
+block -f '\033[42m \033[0m' -b ' ' HELLO
 ```
 
 ### Explicit dimensions and padding
 
 ```bash
-python generate.py -w 120 -h 30 HELLO
-python generate.py -w 60 -h 15 -p 3 CODE
+block -w 120 -h 30 HELLO
+block -w 60 -h 15 -p 3 CODE
 ```
 
 ### Custom font
 
 ```bash
-python generate.py -x /usr/share/fonts/dejavu-sans-fonts/DejaVuSans.ttf CODE
+block -x /usr/share/fonts/dejavu-sans-fonts/DejaVuSans.ttf CODE
 ```
 
 ### SVG output
 
 ```bash
 # Default colours
-python generate.py --format svg -o output.svg CODE
+block --format svg -o output.svg CODE
 
 # Custom character and SVG colours
-python generate.py --format svg \
+block --format svg \
   --fcolor '#e00' --bcolor '#ddd' \
   -f '#' -b '.' \
   -o art.svg HELLO
 
 # Dark background
-python generate.py --format svg \
+block --format svg \
   --svg-background '#1a1a2e' \
   --fcolor '#e00' --bcolor '#555' \
   -o dark.svg CODE
@@ -166,7 +178,7 @@ python generate.py --format svg \
 ### Save text to file
 
 ```bash
-python generate.py -o output.txt CODE
+block -o output.txt CODE
 ```
 
 ## License

@@ -26,6 +26,8 @@ import termios
 import tty
 from PIL import Image, ImageDraw, ImageFont
 
+from ascii_block import __version__
+
 # ── Terminal size via ANSI escape codes ──────────────────────────
 
 
@@ -384,10 +386,16 @@ examples:
         help="show this help message and exit",
     )
     p.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=f"ASCII-Block {__version__}",
+    )
+    p.add_argument(
         "text",
         nargs="?",
-        default="CODE",
-        help="text to render (default: CODE)",
+        default=None,
+        help="text to render (shows banner when omitted)",
     )
     p.add_argument(
         "-w",
@@ -460,8 +468,41 @@ examples:
     return p.parse_args(argv)
 
 
+def _print_banner() -> None:
+    width = shutil.get_terminal_size(fallback=(80, 24)).columns
+    height = max(width // 8, 5)
+
+    print(f"ASCII-Block v{__version__}")
+    print("Render text as binary art using a real font.\n")
+
+    grid = render_text_to_grid("ASCII-BLOCK", width, height)
+    print(grid_to_string(grid, "0", "1"))
+
+    print()
+    print("Usage: block [options] TEXT")
+    print()
+    print("Options:")
+    print("  -w, --width W          output width in characters (default: terminal width)")
+    print("  -h, --height H         output height in characters (default: width / 4)")
+    print("  -f, --foreground CHAR  foreground character (default: 0)")
+    print("  -b, --background CHAR  background character (default: 1)")
+    print("  -p, --padding N        padding around the text (default: 0)")
+    print("  -x, --font PATH       path to a TrueType/OpenType font file")
+    print("  -o, --output FILE      write output to a file instead of stdout")
+    print("  --format {text,svg}    output format (default: text)")
+    print("  --fcolor HEX           SVG foreground colour (default: #000000)")
+    print("  --bcolor HEX           SVG background colour (default: #cccccc)")
+    print("  --svg-background HEX   SVG background rect colour (default: #ffffff)")
+    print("  -v, --version          show version number and exit")
+    print("  --help                 show full help message and exit")
+
+
 def main(argv: list[str] | None = None) -> None:
     args = parse_args(argv)
+
+    if args.text is None:
+        _print_banner()
+        return
 
     width = args.width if args.width is not None else get_terminal_width()
     height = args.height if args.height is not None else max(width // 4, 10)
