@@ -73,6 +73,10 @@ converted to the real escape character:
 Wrap the value in single quotes to prevent your shell from interpreting the
 backslashes.
 
+For a full reference on ANSI escape codes, see:
+- [ANSI Escape Sequences — Gist by fnky](https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797)
+- [ANSI escape code — Wikipedia](https://en.wikipedia.org/wiki/ANSI_escape_code)
+
 ## Examples
 
 ### Basic usage
