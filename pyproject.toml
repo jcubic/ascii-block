@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "ascii-block"
 version = "0.1.0"
 description = "Render text as binary art using a real font"
+readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [
